@@ -546,7 +546,7 @@ $ journalctl --list-boots
 -2 d7156cd4fea94047b0d5a49273fded69 Fri 2020-02-28 13:39:15 CET—Fri 2020-02-28 15:31:43 CET
 -1 fc90a023595d4b28b0bcdbec046fdff5 Fri 2020-02-28 15:31:52 CET—Fri 2020-03-20 16:46:05 CET
  0 3a66e63317754ea1a1fbe48cb98cd98b Fri 2020-03-20 16:46:16 CET—Fri 2020-03-20 18:30:12 CET
- ```
+```
 
 &nbsp;
 
