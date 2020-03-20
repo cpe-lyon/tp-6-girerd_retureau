@@ -404,6 +404,26 @@ no crontab for herysia
 
 **1. Dans la console virtuelle tty1, lancez la commande htop, puis tapez la commande w dans tty2. Qu’affiche cette commande ?**
 
+On éxecture `htop` sur le tty1, puis `w` sur tty2
+On a pu vérifier les terminaux en utilisant la commande `tty`
+```
+$ tty
+/dev/tty1
+```
+On change de terminal avec ctrl+alt+F1/F2
+```
+$ tty
+/dev/tty2
+```
+On obtient:
+```
+$ w
+17:48:00 up  1:01,  3 users,  load average: 0.07, 0.02, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+herysia  tty1     -                17:19    1:12   0.64s  0.58s htop
+herysia  pts/0    192.168.137.1    17:13    1:17   0.05s  0.05s -bash
+herysia  tty2     -                17:45    0.00s  0.15s  0.00s w
+```
 
 
 &nbsp;
@@ -411,21 +431,109 @@ no crontab for herysia
 
 **2. Comment afficher l’historique des dernières connexions à la machine ?**
 
-
+```
+$ last
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+herysia  tty2                          Fri Mar 20 17:45   still logged in
+herysia  pts/0        192.168.137.1    Fri Mar 20 17:19   still logged in
+herysia  tty1                          Fri Mar 20 17:18   still logged in
+```
 
 &nbsp;
 
 
 **3. Quelle commande permet d’obtenir la version du noyau ?**
 
-
+```
+$ uname -v
+#88-Ubuntu SMP Tue Feb 11 20:11:34 UTC 2020
+```
 
 &nbsp;
 
 
 **4. Comment récupérer toutes les informations sur le processeur, au format JSON ?**
 
+On récupère les données dans le fichier `/proc/cpuinfo`
+```
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 60
+model name      : Intel(R) Xeon(R) CPU E3-1240 v3 @ 3.40GHz
+stepping        : 3
+microcode       : 0xffffffff
+cpu MHz         : 3392.150
+cache size      : 8192 KB
+physical id     : 0
+siblings        : 1
+core id         : 0
+cpu cores       : 1
+apicid          : 0
+initial apicid  : 0
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 13
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss syscall nx lm constant_tsc rep_good nopl cpuid pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm pti fsgsbase bmi1 avx2 smep bmi2 erms xsaveopt
+bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit
+bogomips        : 6784.30
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 39 bits physical, 48 bits virtual
+power management:
+```
 
+Pour le formater en json, il faut réaliser un script, étant plus à l'aise en javascript, et JSON étant particulièrement bien adapté au javascript, c'est ce que je vais utiliser
+
+`/home/herysia/procinfo.js`
+```js
+const fs = require('fs');
+const procInfo = fs.readFileSync('/proc/cpuinfo').toString();
+let out = {}
+for(const line of procInfo.split(/\n/g)){
+    let data = line.split(':');
+    if(data.length === 2) {
+        let key = data[0].trim();
+        let value = data[1].trim();
+        out[key] = value;
+    }
+}
+console.log(JSON.stringify(out, null, '\t'));
+```
+On obtient:
+```json
+$ node procinfo.js
+{
+        "processor": "0",
+        "vendor_id": "GenuineIntel",
+        "cpu family": "6",
+        "model": "60",
+        "model name": "Intel(R) Xeon(R) CPU E3-1240 v3 @ 3.40GHz",
+        "stepping": "3",
+        "microcode": "0xffffffff",
+        "cpu MHz": "3392.150",
+        "cache size": "8192 KB",
+        "physical id": "0",
+        "siblings": "1",
+        "core id": "0",
+        "cpu cores": "1",
+        "apicid": "0",
+        "initial apicid": "0",
+        "fpu": "yes",
+        "fpu_exception": "yes",
+        "cpuid level": "13",
+        "wp": "yes",
+        "flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss syscall nx lm constant_tsc rep_good nopl cpuid pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm pti fsgsbase bmi1 avx2 smep bmi2 erms xsaveopt",
+        "bugs": "cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit",
+        "bogomips": "6784.30",
+        "clflush size": "64",
+        "cache_alignment": "64",
+        "address sizes": "39 bits physical, 48 bits virtual",
+        "power management": ""
+}
+```
+On obtient un beau json tout beau, bien formaté !
 
 &nbsp;
 
@@ -433,20 +541,39 @@ no crontab for herysia
 **5. Comment obtenir la liste des derniers démarrages de la machine avec la commande journalctl ?**
 **Comment afficher tout ce qu’il s’est passé sur la machine lors de l’avant-dernier boot ?**
 
+```
+$ journalctl --list-boots
+-2 d7156cd4fea94047b0d5a49273fded69 Fri 2020-02-28 13:39:15 CET—Fri 2020-02-28 15:31:43 CET
+-1 fc90a023595d4b28b0bcdbec046fdff5 Fri 2020-02-28 15:31:52 CET—Fri 2020-03-20 16:46:05 CET
+ 0 3a66e63317754ea1a1fbe48cb98cd98b Fri 2020-03-20 16:46:16 CET—Fri 2020-03-20 18:30:12 CET
+ ```
 
 &nbsp;
 
 
 **6. Comment obtenir la liste des derniers démarrages de la machine avec la commande journalctl ?**
 
-
+On utilise `journalctl -b -2`
 
 &nbsp;
 
 
 **7. Faites en sortes que lors d’une connexion à la machine, les utilisateurs soient prévenus par un message à l’écran d’une maintenance le 26 mars à minuit.**
 
+On modifie le motd (message of the day avec: `sudo nano /etc/motd`
+Et on y ajoute notre message `Attention ! Maintenance prévue le 26 mars à minuit.`
 
+On obtient à la connexion:
+```
+...
+20 updates are security updates.
+
+
+Attention ! Maintenance prévue le 26 mars à minuit.
+You have mail.
+Last login: Fri Mar 20 18:17:11 2020 from 192.168.137.1
+herysia@server:~$
+```
 
 &nbsp;
 
