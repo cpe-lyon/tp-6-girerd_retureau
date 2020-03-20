@@ -580,7 +580,41 @@ herysia@server:~$
 
 **8. Ecrivez un script bash qui permet de calculer le k-ième nombre de Fibonacci : Fk = Fk−1 + Fk−2, avec F0 = F1 = 1. Lancez le calcul de F100 puis lancez la commande tload depuis un autre terminal virtuel. Que constatez-vous ? Interrompez ensuite le calcul avec CTRL+C et observez la conséquence sur l’affichage de tload.**
 
+On écrit le script fibonacci
+```
+#!/bin/bash
 
+F0=1
+F1=1
+k=$1
+
+for (( i=0; i<k; i++))
+do
+        Fn=$((F0+F1))
+        F0=$F1
+        F1=$Fn
+done
+echo "$k i-ème terme de Fibonacci: $F0"
+```
+On le rends éxecutable et l'éxecute:
+```
+$ chmod u+x fibonacci
+./fibonacci 100
+```
+On note que la valeur est incorrecte, en effet on dépasse la taille maximale d'un entier 64 bit, qui est atteinte à k=92
+```
+$ ./fibonacci 100
+100 i-ème terme de Fibonacci: 1298777728820984005
+$ ./fibonacci 91
+91 i-ème terme de Fibonacci: 7540113804746346429
+$ ./fibonacci 92
+92 i-ème terme de Fibonacci: -6246583658587674878
+```
+Pour observer le résultat attendu, on calcule la suite de fibonnacci de 100 000 000.
+
+On observe la courbe d'utilisation des ressources, la rupture correspondant à l'interruption du script:
+
+![performance_profile](performance_profile.png)
 
 &nbsp;
 
