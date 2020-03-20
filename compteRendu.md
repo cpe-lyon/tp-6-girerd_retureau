@@ -277,10 +277,10 @@ On vide l'historique des mails pour la suite: `echo '' > /var/mail/herysia`
 
 **3. Pour tester le fonctionnement de cron, commencez par programmer l’exécution d’une tâche simple, l’affichage de “Il faut réviser pour l’examen !”, toutes les 3 minutes.**
 
-On éxecute la commande: `crontab -e exam`
+On éxecute la commande: `crontab -e`
 puis on choisit le mode 1 pour éditer avec nano et on ajoute la ligne:
 
-`*/3 * * * * echo 'echo "Il faut réviter pour l examen!"'`
+`*/3 * * * * echo "echo \"Il faut réviter pour l'examen!\""`
 
 On vérifie donc bien que l'on reçoit un mail toutes les 3 minutes, avec la notification.
 
@@ -295,7 +295,7 @@ Received: by server (Postfix, from userid 1000)
         id 37673121D99; Fri, 20 Mar 2020 16:36:01 +0100 (CET)
 From: root@server (Cron Daemon)
 To: herysia@server
-Subject: Cron <herysia@server> echo 'echo "Il faut réviter pour l examen!"'
+Subject: Cron <herysia@server> echo "echo \"Il faut réviter pour l'examen!\""`
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -306,7 +306,7 @@ X-Cron-Env: <LOGNAME=herysia>
 Message-Id: <20200320153601.37673121D99@server>
 Date: Fri, 20 Mar 2020 16:36:01 +0100 (CET)
 
-echo "Il faut réviter pour l examen!"
+echo "Il faut réviter pour l'examen!"
 
 From herysia@server  Fri Mar 20 16:39:01 2020
 Return-Path: <herysia@server>
@@ -316,7 +316,7 @@ Received: by server (Postfix, from userid 1000)
         id 3C6BD121D99; Fri, 20 Mar 2020 16:39:01 +0100 (CET)
 From: root@server (Cron Daemon)
 To: herysia@server
-Subject: Cron <herysia@server> echo 'echo "Il faut réviter pour l examen!"'
+Subject: Cron <herysia@server> echo "echo \"Il faut réviter pour l'examen!\""`
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -327,13 +327,13 @@ X-Cron-Env: <LOGNAME=herysia>
 Message-Id: <20200320153901.3C6BD121D99@server>
 Date: Fri, 20 Mar 2020 16:39:01 +0100 (CET)
 
-echo "Il faut réviter pour l examen!"
+echo "Il faut réviter pour l'examen!"
 ```
 
 On supprime la crontab pour éviter de recevoir des mails en permanence (et car on a bien révisé nos éxamens)
 
 ```
-$ crontab -r exam
+$ crontab -r
 $ crontab -l
 no crontab for herysia
 ```
@@ -343,34 +343,57 @@ no crontab for herysia
 
 **4. Programmez l’exécution d’une commande tous les jours, toute l’année, tous les quarts d’heure**
 
-
+- `crontab -e`
+- On ajoute:  `*/15 * * * * echo "echo \"1/4 d'heure écoulé\""`
 
 &nbsp;
 
 
 **5. Programmez l’exécution d’une commande toutes les cinq minutes à partir de 2 (2, 7, 12, etc.) à 18 heures les 1er et 15 du mois :**
 
+- `crontab -e`
+- On ajoute:  `2-59/5 18 1,15 * * echo "echo \"Message question 5\""`
 
+`2-59/5`: toutes les cinq minutes à partir de 2 (2, 7, 12, etc.)
+`18`: à 18h uniquement (donc 18h02, 18h07, ...)
+`1,15`: les 1er et 15 du mois
 
 &nbsp;
 
 
 **6. Programmez l’exécution d’une commande du lundi au vendredi à 17 heures**
 
+- `crontab -e`
+- On ajoute:  `0 17 * * 1-5 echo "echo \"Message question 6\""`
 
+`1-5`: les jours 1 à 5 (lundi à vendredi)
 
 &nbsp;
 
 
 **7. Modifiez votre crontab pour que les messages ne soient plus envoyés par mail, mais redirigés dans un fichier de log situé dans votre dossier personnel**
 
+Pour chaque tâche à écrire dans un fichier, ajouter à la fin:
+`>> /home/herysia/crontab.log 2>&1`
 
+On observe qu'il n'y a plus de mail, et le fichier crontab.log est créé et contient (avec uniquement la 1ère cron (examen))
+```
+cat crontab.log
+echo "Il faut réviter pour l'examen!"
+```
+
+On note d'ailleurs que le double echo de la diapo n'est pas utile et aurais pu être omis.
 
 &nbsp;
 
 
 **8. Videz votre crontab**
 
+```
+$ crontab -r
+$ crontab -l
+no crontab for herysia
+```
 
 
 &nbsp;
